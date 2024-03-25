@@ -2,25 +2,26 @@ import { Node } from "./Node";
 
 export class Huffman {
 
-    nodeList: Node[][]
+    nodeList: Node[][] = [];
 
-    constructor(){
+    constructor(text : string){
+        this.nodeList.push(this.textToNodeList(text));
     }
 
-    sort(nodeList: Node[]){
-        return nodeList.sort((a, b) => a.value - b.value);
+    private sort(nodeList: Node[]){
+        return nodeList.sort((a, b) => (a.value?? 0) - (b.value?? 0));
     }
 
-    nodeByMinimumValue(nodeList: Node[]){
+    private nodeByMinimumValue(nodeList: Node[]){
         const newNode = new Node();
-        newNode.value = nodeList[0].value + nodeList[1].value;
+        newNode.value = (nodeList[0].value?? 0) + (nodeList[1].value?? 0)
         newNode.left = nodeList[0];
         newNode.right = nodeList[1];
-        newNode.code = nodeList[0].code + nodeList[1].code;
+        newNode.code = (nodeList[0].code?? "") + (nodeList[1].code?? "");
         return newNode;
     }
 
-    injectNode(node: Node[], newNode: Node){
+    private injectNode(node: Node[], newNode: Node){
         var newNodes: Node[] = [];
         for(var i = 2; i < node.length; i++){
             newNodes.push(node[i]);
@@ -50,7 +51,7 @@ export class Huffman {
         var countWords: number[] = [];
         for(let i = 0; i < textSize; i++){
             if(!tempNodeText.includes(text[i])){
-                tempNodeText.push(text);
+                tempNodeText.push(text[i]);
                 countWords.push(1);
             }else{
                 const index = tempNodeText.indexOf(text[i]);
@@ -60,7 +61,7 @@ export class Huffman {
         return this.getNodeList(textSize, countWords, tempNodeText)
     }
 
-    getNodeList(textSize: number, countWords: number[], tempNodeText: string[]){
+    private getNodeList(textSize: number, countWords: number[], tempNodeText: string[]){
         var nodeList: Node[] = [];
         for(let i = 0; i < countWords.length; i ++){
             var newNode = Node.getNode(tempNodeText[i], countWords[i], textSize);
@@ -68,5 +69,4 @@ export class Huffman {
         }
         return nodeList;
     }
-
 }
