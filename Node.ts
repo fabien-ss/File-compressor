@@ -4,7 +4,7 @@ export class Node{
     right: Node | null;
     value: number | null;
     code: string | null;
-    ticket: number = 0 ;
+    ticket: number = 0;
 
     constructor(){
         this.left = null;
@@ -22,11 +22,24 @@ export class Node{
 
     ticketing(){
         if(this.left !== null){
-            this.left.ticket = 0;
+            this.ticket = 0;
             this.left.ticketing();
-        }else {
-          //  this.right.ticket = 1;
-         //   this.right.ticketing();
+        }else if(this.right !== null){
+            console.log("right not null")
+            this.ticket = 1;
+            this.right.ticketing();
+        }
+    }
+
+    displayTree(call: number) {
+        console.log(this.value); 
+
+        if (this.left !== null) {
+            this.left.displayTree(call + 1);
+        }
+
+        if (this.right !== null) {
+            this.right.displayTree(call + 1);
         }
     }
 }
