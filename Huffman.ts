@@ -31,7 +31,7 @@ export class Huffman {
     }
     
     buildTree(){
-        // tant que la liste n'est pas réduit à 2 nodes
+        // tant que la liste n'est pas réduite à 2 nodes
         while(this.nodeList[this.nodeList.length - 1].length > 2){
             // trier la dernière liste pour obtenir les nodes avec les plus petites valeurs
             var targetNode = this.sort(this.nodeList[this.nodeList.length - 1])
@@ -65,6 +65,7 @@ export class Huffman {
         var nodeList: Node[] = [];
         for(let i = 0; i < countWords.length; i ++){
             var newNode = Node.getNode(tempNodeText[i], countWords[i], textSize);
+            newNode.rank = i;
             nodeList.push(newNode);
         }
         return nodeList;

@@ -2,15 +2,19 @@ export class Node{
 
     left: Node | null;
     right: Node | null;
+    parent: Node | null;
     value: number | null;
     code: string | null;
-    ticket: number = 0;
+    ticket: string | null;
+    rank: number = 0;
 
     constructor(){
         this.left = null;
         this.right = null;
         this.value = null;
         this.code = null;
+        this.parent = null;
+        this.ticket = null;
     }
 
     static getNode(code: string, repetition: number, corpusSize: number){
@@ -20,26 +24,37 @@ export class Node{
         return node;
     }
 
-    ticketing(){
-        if(this.left !== null){
-            this.ticket = 0;
-            this.left.ticketing();
-        }else if(this.right !== null){
-            console.log("right not null")
-            this.ticket = 1;
-            this.right.ticketing();
-        }
+    ticketing(start: string){
+        if(this.left != null) this.left.ticket = start + "1";
+        if(this.right != null) this.right.ticket = start + "0";
+        this.left?.ticketing(this.left.ticket ?? "");
+        this.right?.ticketing(this.right.ticket ?? "");
     }
 
-    displayTree(call: number) {
-        console.log(this.value); 
-
-        if (this.left !== null) {
-            this.left.displayTree(call + 1);
+    binaryRepresentation(data: string[]) {
+        if(this.left === null && this.right === null){
+            data.push(this.ticket?? "");
         }
+        this.left?.binaryRepresentation(data);
+        this.right?.binaryRepresentation(data);
+        return data;
+    }
 
-        if (this.right !== null) {
-            this.right.displayTree(call + 1);
+    findNode(path: string, index: number): Node | null {
+        if (this.left === null && this.right === null) return this;
+        if (path[index] === "1") return this.left?.findNode(path, index + 1) ?? null;
+        else if (path[index] === "0") return this.right?.findNode(path, index + 1) ?? null;
+        return null; 
+    }
+
+    nodeBinaryRepresentation(data: string[]){
+        var nodes: Node[] = [];
+        for(let i = 0; i < data.length; i++){
+            const foundNode = this.findNode(data[i], 0);
+            if (foundNode !== null) {
+                nodes.push(foundNode);
+            }
         }
+        return nodes;
     }
 }
