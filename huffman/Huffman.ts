@@ -1,11 +1,17 @@
 import { Node } from "./Node";
+import fs from "fs";
 
 export class Huffman {
 
     nodeList: Node[][] = [];
+    text: string;
+    dictionnary: any;
+    dictionnaryPath: string = "./documents/dictionnary.json";
+    encodedFilePath: string = "./documents/encoded.txt"
 
-    constructor(text : string){
-        this.nodeList.push(this.textToNodeList(text));
+    constructor(textPah : string){
+        this.text = fs.readFileSync(textPah, 'utf8');
+        this.nodeList.push(this.textToNodeList(this.text));
     }
 
     private sort(nodeList: Node[]){
@@ -31,13 +37,9 @@ export class Huffman {
     }
     
     buildTree(){
-        // tant que la liste n'est pas réduite à 2 nodes
         while(this.nodeList[this.nodeList.length - 1].length > 2){
-            // trier la dernière liste pour obtenir les nodes avec les plus petites valeurs
             var targetNode = this.sort(this.nodeList[this.nodeList.length - 1])
-            // extraction du nouveau noeud par la liste triée
             const newNode = this.nodeByMinimumValue(targetNode);
-            // création d'une nouvelle liste de noeud pour faire la prochaine ittération
             const newNodeList = this.injectNode(targetNode, newNode);
             this.nodeList.push(newNodeList);
         }
@@ -58,6 +60,8 @@ export class Huffman {
                 countWords[index]++;
             }
         }
+        console.log("node list ",tempNodeText)
+        console.log("node count ", countWords)
         return this.getNodeList(textSize, countWords, tempNodeText)
     }
 
@@ -69,5 +73,60 @@ export class Huffman {
             nodeList.push(newNode);
         }
         return nodeList;
+    }
+
+    encodeText() {
+        let encoded = "";
+        for (let i = 0; i < this.text.length; i++) {
+            encoded += this.dictionnary[this.text[i]];
+        }
+        return encoded;
+    }  
+    
+    decodageText(){
+
+    }
+
+    sortedDictionnary(): Record<string, number> {
+        return Object.keys(this.dictionnary)
+          .sort((a, b) => this.dictionnary[b].length - this.dictionnary[a].length)
+          .reduce((acc, key) => {
+            acc[key] = this.dictionnary[key];
+            return acc;
+          }, {} as Record<string, number>);
+    }
+
+
+    encodeDataToByteArray(){
+        const matchResult = this.encodeText().match(/.{1,8}/g);
+        const binaryArray = matchResult ? matchResult.map(byte => parseInt(byte, 2)) : [];
+        const uint8Array = new Uint8Array(binaryArray);
+        return uint8Array;
+    }
+
+    saveByteToFile(){
+        let byteArray = this.encodeDataToByteArray();
+        fs.writeFile(this.encodedFilePath, byteArray, (err) => {
+            if (err) throw err;
+            console.log('Le fichier a été sauvegardé avec succès.');
+        });
+    }
+
+    setDictionnary(
+       dictionnary: Record<string, string>, path: string
+    ){
+        this.dictionnary = dictionnary;
+        this.dictionnaryPath = path;
+        this.saveDictionnary();
+    }   
+
+    saveDictionnary(){
+        try {
+            const data = JSON.stringify(this.dictionnary, null, 4); // Utiliser null et 4 pour une mise en forme jolie
+            fs.writeFileSync(this.dictionnaryPath, data, 'utf8');
+            console.log(`Le fichier a été écrit avec succès !`);
+        } catch (err) {
+        console.log(`Erreur lors de l'écriture du fichier: ${err}`);
+        }
     }
 }
